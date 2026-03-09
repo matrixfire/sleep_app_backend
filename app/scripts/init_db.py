@@ -1,0 +1,77 @@
+from __future__ import annotations
+
+from sqlalchemy.orm import Session
+
+from app.core.security import get_password_hash
+from app.models import (
+    AudioResource,
+    Base,
+    SysPermission,
+    SysRole,
+    SysRolePerm,
+    SysUser,
+    SysUserRole,
+)
+from db.session import engine, SessionLocal
+
+
+def init_db() -> None:
+    Base.metadata.create_all(bind=engine)
+
+    db: Session = SessionLocal()
+    try:
+        # Check for existing admin
+        admin = db.query(SysUser).filter(SysUser.username == "admin").first()
+        if not admin:
+            admin = SysUser(
+                username="admin",
+                password_hash=get_password_hash("admin123"),
+                status=1,
+            )
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+
+        role = db.query(SysRole).filter(SysRole.role_code == "SUPER_ADMIN").first()
+        if not role:
+            role = SysRole(role_name="Super Admin", role_code="SUPER_ADMIN")
+            db.add(role)
+            db.commit()
+            db.refresh(role)
+
+        # Bind user-role
+        if role not in admin.roles:
+            admin.roles.append(role)
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+
+        # Permissions
+        perm_codes = {
+            "audio:read": "Read audio resources",
+            "audio:create": "Create audio resources",
+            "audio:update": "Update audio resources",
+            "audio:delete": "Delete audio resources",
+        }
+
+        for code, name in perm_codes.items():
+            perm = db.query(SysPermission).filter(SysPermission.perm_code == code).first()
+            if not perm:
+                perm = SysPermission(perm_name=name, perm_code=code)
+                db.add(perm)
+                db.commit()
+                db.refresh(perm)
+            if perm not in role.permissions:
+                role.permissions.append(perm)
+                db.add(role)
+                db.commit()
+                db.refresh(role)
+
+        print("Database initialized. Admin user: admin / admin123")
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    init_db()
+
