@@ -9,10 +9,13 @@ from app.schemas import Token, UserWithPerms
 
 
 class AuthService:
+    """Authentication and current-user loading logic for admin users."""
+
     def __init__(self, db: Session):
         self.db = db
 
     def authenticate(self, username: str, password: str) -> Token | None:
+        """Validate credentials and return a JWT token for active users, or None on failure."""
         user = crud.get_user_by_username(self.db, username=username)
         if not user or not user.status:
             return None
@@ -22,6 +25,7 @@ class AuthService:
         return Token(access_token=token)
 
     def load_current_user(self, user_id: int) -> UserWithPerms | None:
+        """Load the current user with attached permission codes for RBAC checks."""
         user = self.db.get(SysUser, user_id)
         if not user or not user.status:
             return None

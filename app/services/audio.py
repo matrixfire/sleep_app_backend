@@ -14,6 +14,7 @@ PERM_AUDIO_DELETE = "audio:delete"
 
 
 def _ensure_permission(user: UserWithPerms, perm_code: str) -> None:
+    """Raise a 403 error if the current user lacks the given permission code."""
     if perm_code not in user.permissions:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -22,11 +23,14 @@ def _ensure_permission(user: UserWithPerms, perm_code: str) -> None:
 
 
 class AudioService:
+    """Service layer for admin audio CRUD with RBAC checks."""
+
     def __init__(self, db: Session, current_user: UserWithPerms):
         self.db = db
         self.current_user = current_user
 
     def list_audios(self, page: int, size: int) -> AudioListResponse:
+        """Return a paginated list of audios after verifying read permission."""
         _ensure_permission(self.current_user, PERM_AUDIO_READ)
         total, items = crud.list_audios(self.db, page=page, size=size)
         return AudioListResponse(
@@ -35,6 +39,7 @@ class AudioService:
         )
 
     def create_audio(self, data: AudioCreate) -> AudioOut:
+        """Create a new audio resource after verifying create permission."""
         _ensure_permission(self.current_user, PERM_AUDIO_CREATE)
         obj = AudioResource(
             title=data.title,
@@ -45,6 +50,7 @@ class AudioService:
         return AudioOut.model_validate(obj)
 
     def update_audio(self, audio_id: int, data: AudioUpdate) -> AudioOut:
+        """Update an existing audio resource after verifying update permission."""
         _ensure_permission(self.current_user, PERM_AUDIO_UPDATE)
         obj = crud.get_audio(self.db, audio_id=audio_id)
         if not obj:
@@ -59,6 +65,7 @@ class AudioService:
         return AudioOut.model_validate(obj)
 
     def delete_audio(self, audio_id: int) -> None:
+        """Delete an audio resource after verifying delete permission."""
         _ensure_permission(self.current_user, PERM_AUDIO_DELETE)
         obj = crud.get_audio(self.db, audio_id=audio_id)
         if not obj:

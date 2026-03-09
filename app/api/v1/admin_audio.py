@@ -15,6 +15,7 @@ def get_audio_service(
     db: Session = Depends(get_db),
     current_user: UserWithPerms = Depends(get_current_user),
 ) -> AudioService:
+    """Provide an AudioService bound to the current DB session and authenticated admin user."""
     return AudioService(db=db, current_user=current_user)
 
 
@@ -24,6 +25,7 @@ def list_audios(
     size: int = 20,
     svc: AudioService = Depends(get_audio_service),
 ) -> AudioListResponse:
+    """List audio resources with pagination, enforcing read permissions via the service layer."""
     return svc.list_audios(page=page, size=size)
 
 
@@ -32,6 +34,7 @@ def create_audio(
     data: AudioCreate,
     svc: AudioService = Depends(get_audio_service),
 ) -> AudioOut:
+    """Create a new audio resource for admin management, subject to create permissions."""
     return svc.create_audio(data)
 
 
@@ -41,6 +44,7 @@ def update_audio(
     data: AudioUpdate,
     svc: AudioService = Depends(get_audio_service),
 ) -> AudioOut:
+    """Update an existing audio resource if the admin has update permissions."""
     return svc.update_audio(audio_id=audio_id, data=data)
 
 
@@ -49,6 +53,7 @@ def delete_audio(
     audio_id: int,
     svc: AudioService = Depends(get_audio_service),
 ) -> Response:
+    """Delete an audio resource if the admin has delete permissions."""
     svc.delete_audio(audio_id=audio_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

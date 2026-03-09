@@ -15,6 +15,7 @@ def login(
     data: LoginRequest,
     auth_svc: AuthService = Depends(get_auth_service),
 ) -> Token:
+    """Authenticate an admin user and return a JWT access token."""
     token = auth_svc.authenticate(username=data.username, password=data.password)
     if token is None:
         raise HTTPException(
