@@ -19,24 +19,25 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
 
 
 def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db),
+    token: Annotated[str, Depends(oauth2_scheme)],  # Get the bearer token from the request using FastAPI's dependency system
+    db: Session = Depends(get_db),                  # Get a database session using FastAPI's dependency injection
 ) -> UserWithPerms:
-    payload = decode_token(token)
-    if payload is None:
+    payload = decode_token(token)                   # Decode the JWT access token to get the user's info (payload)
+    if payload is None:                             # If the token could not be decoded (invalid/expired)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Could not validate credentials",   # Let the client know authentication failed
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user_id = int(payload.sub)
-    auth_svc = AuthService(db)
-    user = auth_svc.load_current_user(user_id)
-    if user is None or not user.is_active:
+    user_id = int(payload.sub)                      # Extract the user's ID from the token's subject (sub) field
+    auth_svc = AuthService(db)                      # Initialize the authentication service with the current DB session
+    user = auth_svc.load_current_user(user_id)      # Use the authentication service to get the current user by ID
+    if user is None or not user.is_active:          # Check if the user exists and is active
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Inactive user",
+            detail="Inactive user",                   # Inform client that user is inactive or doesn't exist
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user
+    return user                                     # Return the authenticated and active user object
+
 
