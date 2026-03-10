@@ -41,3 +41,15 @@ def get_current_user(
     return user                                     # Return the authenticated and active user object
 
 
+
+
+
+
+'''
+1. JWT (JSON Web Token) is a stateless authentication mechanism used to securely transmit information between a client and a server. A JWT has three parts: Header, Payload, and Signature.
+
+The payload contains claims such as the user ID and timestamps like iat (issued at) and exp (expiration time). When a user logs in, the server creates the JWT, signs it with a secret key, and sends it to the client.
+
+The client includes the token in the Authorization: Bearer token header for each request. The server verifies the signature and checks the timestamps like exp to ensure the token hasn’t expired before allowing access.
+
+'''
