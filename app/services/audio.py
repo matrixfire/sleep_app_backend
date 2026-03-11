@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations # MEANS: Don't rush to check the type name, wait until you've read the whole file first.
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -72,3 +72,38 @@ class AudioService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio not found")
         crud.delete_audio(self.db, obj)
 
+
+    def delete_audio_(self, audio_id: int) -> None:
+        """Delete an audio resource after verifying delete permission AND ownership."""
+        
+        # STEP 1: The "Bouncer" check. Does the user have the general ability to delete?
+        _ensure_permission(self.current_user, PERM_AUDIO_DELETE)
+
+        # STEP 2: Get the specific data row (the audio file).
+        obj = crud.get_audio(self.db, audio_id=audio_id)
+        if not obj:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio not found")
+
+        # --- THIS IS THE NEW, FINE-GRAINED CHECK (The "Floor Manager") ---
+        
+        # Check if the current user is a SUPER_ADMIN. They can bypass ownership checks.
+        is_super_admin = any(role.role_code == "SUPER_ADMIN" for role in self.current_user.roles)
+
+        # If the user is NOT the uploader AND they are NOT a super admin...
+        if obj.uploader_id != self.current_user.id and not is_super_admin:
+            # ...then deny access.
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to delete audio you did not upload.",
+            )
+        
+        # --- END OF FINE-GRAINED CHECK ---
+
+        # STEP 3: If all checks pass, proceed with the deletion.
+        crud.delete_audio(self.db, obj)
+
+
+'''
+The current MVP implements coarse permissions. Fine-grained is the next step and fits naturally in the service layer.”
+
+'''

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status # Depends means having FastAPI automatically provide this for me
+from fastapi.security import OAuth2PasswordBearer # HANDLES Bearer Token
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
@@ -46,7 +46,8 @@ def get_current_user(
 
 
 '''
-1. JWT (JSON Web Token) is a stateless authentication mechanism used to securely transmit information between a client and a server. A JWT has three parts: Header, Payload, and Signature.
+1. JWT (JSON Web Token) is a stateless authentication mechanism used to securely transmit information between a client and a server. 
+A JWT has three parts: Header, Payload, and Signature.
 
 The payload contains claims such as the user ID and timestamps like iat (issued at) and exp (expiration time). When a user logs in, the server creates the JWT, signs it with a secret key, and sends it to the client.
 
