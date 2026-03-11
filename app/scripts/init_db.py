@@ -5,12 +5,15 @@ from sqlalchemy.orm import Session
 from app.core.security import get_password_hash
 from app.models import (
     AudioResource,
+    AppUser,
     Base,
     SysPermission,
     SysRole,
     SysRolePerm,
     SysUser,
     SysUserRole,
+    UserAudioPlayback,
+    UserSleepRecord,
 )
 from db.session import engine, SessionLocal
 
@@ -52,6 +55,12 @@ def init_db() -> None:
             "audio:create": "Create audio resources",
             "audio:update": "Update audio resources",
             "audio:delete": "Delete audio resources",
+            "app_user:create": "Create app users",
+            "app_user:read": "Read app users",
+            "sleep_record:create": "Create user sleep records",
+            "sleep_record:read": "Read user sleep records",
+            "audio_playback:create": "Create user audio playbacks",
+            "audio_playback:read": "Read user audio playbacks",
         }
 
         for code, name in perm_codes.items():

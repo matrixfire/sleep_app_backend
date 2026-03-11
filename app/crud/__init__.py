@@ -5,6 +5,7 @@ from app.crud.audio import (
     list_audios,
     update_audio,
 )
+from app.crud.app_user import create_app_user, get_app_user, list_app_users
 from app.crud.rbac import (
     create_permission,
     create_role,
@@ -14,6 +15,8 @@ from app.crud.rbac import (
     get_user_by_username,
     get_user_permissions,
 )
+from app.crud.user_audio_playback import create_playback, get_playback, list_playbacks_for_user
+from app.crud.user_sleep_record import create_sleep_record, get_sleep_record, list_sleep_records_for_user
 
 __all__ = [
     "create_audio",
@@ -21,6 +24,9 @@ __all__ = [
     "get_audio",
     "list_audios",
     "update_audio",
+    "create_app_user",
+    "get_app_user",
+    "list_app_users",
     "create_permission",
     "create_role",
     "create_user",
@@ -28,5 +34,11 @@ __all__ = [
     "ensure_user_role",
     "get_user_by_username",
     "get_user_permissions",
+    "create_sleep_record",
+    "get_sleep_record",
+    "list_sleep_records_for_user",
+    "create_playback",
+    "get_playback",
+    "list_playbacks_for_user",
 ]
 
