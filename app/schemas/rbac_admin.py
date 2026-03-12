@@ -19,6 +19,11 @@ class SysUserOut(BaseModel):
         from_attributes = True
 
 
+class SysUserListResponse(BaseModel):
+    total: int
+    items: list[SysUserOut]
+
+
 class SysRoleCreate(BaseModel):
     role_name: str = Field(min_length=1, max_length=50)
     role_code: str = Field(min_length=1, max_length=50)
@@ -33,6 +38,10 @@ class SysRoleOut(BaseModel):
         from_attributes = True
 
 
+class SysRoleListResponse(BaseModel):
+    items: list[SysRoleOut]
+
+
 class SysPermissionCreate(BaseModel):
     perm_name: str = Field(min_length=1, max_length=50)
     perm_code: str = Field(min_length=1, max_length=100)
@@ -45,6 +54,10 @@ class SysPermissionOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SysPermissionListResponse(BaseModel):
+    items: list[SysPermissionOut]
 
 
 class MessageOut(BaseModel):

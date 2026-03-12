@@ -20,6 +20,8 @@ from app.crud.rbac import (
     list_permissions,
     list_roles,
     list_users,
+    remove_role_permission,
+    remove_user_role,
 )
 from app.crud.user_audio_playback import create_playback, get_playback, list_playbacks_for_user
 from app.crud.user_sleep_record import create_sleep_record, get_sleep_record, list_sleep_records_for_user
@@ -38,6 +40,8 @@ __all__ = [
     "create_user",
     "ensure_role_permission",
     "ensure_user_role",
+    "remove_user_role",
+    "remove_role_permission",
     "get_user",
     "get_user_by_username",
     "get_user_permissions",

@@ -9,10 +9,13 @@ from app.models import SysPermission, SysRole, SysUser
 from app.schemas import (
     MessageOut,
     SysPermissionCreate,
+    SysPermissionListResponse,
     SysPermissionOut,
     SysRoleCreate,
+    SysRoleListResponse,
     SysRoleOut,
     SysUserCreate,
+    SysUserListResponse,
     SysUserOut,
     UserWithPerms,
 )
@@ -58,6 +61,22 @@ class RbacAdminService:
             roles=[r.role_code for r in obj.roles],
         )
 
+    def list_users(self, page: int, size: int) -> SysUserListResponse:
+        _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
+        total, items = crud.list_users(self.db, page=page, size=size)
+        return SysUserListResponse(
+            total=total,
+            items=[
+                SysUserOut(
+                    id=u.id,
+                    username=u.username,
+                    status=u.status,
+                    roles=[r.role_code for r in u.roles],
+                )
+                for u in items
+            ],
+        )
+
     def create_role(self, data: SysRoleCreate) -> SysRoleOut:
         _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
         existing = crud.get_role_by_code(self.db, role_code=data.role_code)
@@ -67,6 +86,11 @@ class RbacAdminService:
         obj = crud.create_role(self.db, obj)
         return SysRoleOut.model_validate(obj)
 
+    def list_roles(self) -> SysRoleListResponse:
+        _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
+        items = crud.list_roles(self.db)
+        return SysRoleListResponse(items=[SysRoleOut.model_validate(r) for r in items])
+
     def create_permission(self, data: SysPermissionCreate) -> SysPermissionOut:
         _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
         existing = crud.get_permission_by_code(self.db, perm_code=data.perm_code)
@@ -75,6 +99,11 @@ class RbacAdminService:
         obj = SysPermission(perm_name=data.perm_name, perm_code=data.perm_code)
         obj = crud.create_permission(self.db, obj)
         return SysPermissionOut.model_validate(obj)
+
+    def list_permissions(self) -> SysPermissionListResponse:
+        _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
+        items = crud.list_permissions(self.db)
+        return SysPermissionListResponse(items=[SysPermissionOut.model_validate(p) for p in items])
 
     def assign_role_to_user(self, user_id: int, role_code: str) -> MessageOut:
         _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
@@ -87,6 +116,19 @@ class RbacAdminService:
         crud.ensure_user_role(self.db, user=user, role=role)
         return MessageOut(message=f"Role '{role_code}' assigned to user_id={user_id}")
 
+    def revoke_role_from_user(self, user_id: int, role_code: str) -> MessageOut:
+        _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
+        user = crud.get_user(self.db, user_id=user_id)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        role = crud.get_role_by_code(self.db, role_code=role_code)
+        if role is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+        removed = crud.remove_user_role(self.db, user=user, role=role)
+        if not removed:
+            return MessageOut(message=f"Role '{role_code}' was not assigned to user_id={user_id}")
+        return MessageOut(message=f"Role '{role_code}' revoked from user_id={user_id}")
+
     def assign_permission_to_role(self, role_code: str, perm_code: str) -> MessageOut:
         _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
         role = crud.get_role_by_code(self.db, role_code=role_code)
@@ -97,4 +139,17 @@ class RbacAdminService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Permission not found")
         crud.ensure_role_permission(self.db, role=role, perm=perm)
         return MessageOut(message=f"Permission '{perm_code}' assigned to role '{role_code}'")
+
+    def revoke_permission_from_role(self, role_code: str, perm_code: str) -> MessageOut:
+        _ensure_permission(self.current_user, PERM_RBAC_MANAGE)
+        role = crud.get_role_by_code(self.db, role_code=role_code)
+        if role is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+        perm = crud.get_permission_by_code(self.db, perm_code=perm_code)
+        if perm is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Permission not found")
+        removed = crud.remove_role_permission(self.db, role=role, perm=perm)
+        if not removed:
+            return MessageOut(message=f"Permission '{perm_code}' was not assigned to role '{role_code}'")
+        return MessageOut(message=f"Permission '{perm_code}' revoked from role '{role_code}'")
 

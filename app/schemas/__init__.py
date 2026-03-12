@@ -4,10 +4,13 @@ from app.schemas.auth import LoginRequest, Message, Token, TokenPayload, UserBas
 from app.schemas.rbac_admin import (
     MessageOut,
     SysPermissionCreate,
+    SysPermissionListResponse,
     SysPermissionOut,
     SysRoleCreate,
+    SysRoleListResponse,
     SysRoleOut,
     SysUserCreate,
+    SysUserListResponse,
     SysUserOut,
 )
 from app.schemas.user_audio_playback import (
@@ -39,10 +42,13 @@ __all__ = [
     "UserAudioPlaybackListResponse",
     "SysUserCreate",
     "SysUserOut",
+    "SysUserListResponse",
     "SysRoleCreate",
     "SysRoleOut",
+    "SysRoleListResponse",
     "SysPermissionCreate",
     "SysPermissionOut",
+    "SysPermissionListResponse",
     "MessageOut",
 ]
 

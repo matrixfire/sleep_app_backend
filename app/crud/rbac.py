@@ -102,3 +102,23 @@ def ensure_role_permission(db: Session, role: SysRole, perm: SysPermission) -> N
         db.commit()
         db.refresh(role)
 
+
+def remove_user_role(db: Session, user: SysUser, role: SysRole) -> bool:
+    if role in user.roles:
+        user.roles.remove(role)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return True
+    return False
+
+
+def remove_role_permission(db: Session, role: SysRole, perm: SysPermission) -> bool:
+    if perm in role.permissions:
+        role.permissions.remove(perm)
+        db.add(role)
+        db.commit()
+        db.refresh(role)
+        return True
+    return False
+
