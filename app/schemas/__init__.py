@@ -1,6 +1,15 @@
 from app.schemas.audio import AudioBase, AudioCreate, AudioListResponse, AudioOut, AudioUpdate
 from app.schemas.app_user import AppUserCreate, AppUserOut
 from app.schemas.auth import LoginRequest, Message, Token, TokenPayload, UserBase, UserWithPerms
+from app.schemas.rbac_admin import (
+    MessageOut,
+    SysPermissionCreate,
+    SysPermissionOut,
+    SysRoleCreate,
+    SysRoleOut,
+    SysUserCreate,
+    SysUserOut,
+)
 from app.schemas.user_audio_playback import (
     UserAudioPlaybackCreate,
     UserAudioPlaybackListResponse,
@@ -28,5 +37,12 @@ __all__ = [
     "UserAudioPlaybackCreate",
     "UserAudioPlaybackOut",
     "UserAudioPlaybackListResponse",
+    "SysUserCreate",
+    "SysUserOut",
+    "SysRoleCreate",
+    "SysRoleOut",
+    "SysPermissionCreate",
+    "SysPermissionOut",
+    "MessageOut",
 ]
 

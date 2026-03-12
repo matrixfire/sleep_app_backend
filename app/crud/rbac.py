@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Iterable, Sequence
+from typing import Iterable, Optional, Sequence, Tuple
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import SysPermission, SysRole, SysRolePerm, SysUser, SysUserRole
@@ -24,6 +24,46 @@ def get_user_permissions(db: Session, user_id: int) -> list[str]:
     rows = db.execute(stmt).scalars().all()
     # ensure unique
     return sorted(set(rows))
+
+
+def get_user(db: Session, user_id: int) -> SysUser | None:
+    return db.get(SysUser, user_id)
+
+
+def list_users(db: Session, page: int, size: int) -> Tuple[int, list[SysUser]]:
+    if page < 1:
+        page = 1
+    if size < 1:
+        size = 10
+    total = db.execute(select(func.count()).select_from(SysUser)).scalar_one()
+    stmt = (
+        select(SysUser)
+        .order_by(SysUser.id.desc())
+        .offset((page - 1) * size)
+        .limit(size)
+    )
+    items = db.execute(stmt).scalars().all()
+    return total, items
+
+
+def get_role_by_code(db: Session, role_code: str) -> SysRole | None:
+    stmt = select(SysRole).where(SysRole.role_code == role_code)
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def list_roles(db: Session) -> list[SysRole]:
+    stmt = select(SysRole).order_by(SysRole.id.desc())
+    return db.execute(stmt).scalars().all()
+
+
+def get_permission_by_code(db: Session, perm_code: str) -> SysPermission | None:
+    stmt = select(SysPermission).where(SysPermission.perm_code == perm_code)
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def list_permissions(db: Session) -> list[SysPermission]:
+    stmt = select(SysPermission).order_by(SysPermission.id.desc())
+    return db.execute(stmt).scalars().all()
 
 
 def create_user(db: Session, user: SysUser) -> SysUser:
