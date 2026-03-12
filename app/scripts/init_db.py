@@ -19,6 +19,19 @@ from db.session import engine, SessionLocal
 
 
 def init_db() -> None:
+    """
+    Initializes the database with required data for the first run.
+
+    This script performs the following actions:
+    1. Creates all database tables based on the defined models.
+    2. Creates a default super-admin user (admin/admin123).
+    3. Creates a 'SUPER_ADMIN' role.
+    4. Creates a set of essential permissions for all features.
+    5. Assigns the 'SUPER_ADMIN' role to the admin user.
+    6. Assigns all created permissions to the 'SUPER_ADMIN' role.
+
+    It is safe to run this script multiple times; it will only add data that doesn't already exist.
+    """
     Base.metadata.create_all(bind=engine)
 
     db: Session = SessionLocal()
