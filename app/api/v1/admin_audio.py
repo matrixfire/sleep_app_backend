@@ -23,10 +23,12 @@ def get_audio_service(
 def list_audios(
     page: int = 1,
     size: int = 20,
+    category: str | None = None,
+    scene_tags: str | None = None,
     svc: AudioService = Depends(get_audio_service),
 ) -> AudioListResponse:
-    """List audio resources with pagination, enforcing read permissions via the service layer."""
-    return svc.list_audios(page=page, size=size)
+    """List audio resources with pagination and optional filters."""
+    return svc.list_audios(page=page, size=size, category=category, scene_tags=scene_tags)
 
 
 @router.post("", response_model=AudioOut, status_code=status.HTTP_201_CREATED)

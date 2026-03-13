@@ -8,4 +8,5 @@ passlib[bcrypt]
 bcrypt<4.1
 redis
 python-multipart
+alembic
 

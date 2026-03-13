@@ -20,11 +20,17 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> str:
+def create_access_token(
+    subject: str,
+    expires_minutes: Optional[int] = None,
+    extra_claims: Optional[dict[str, Any]] = None,
+) -> str:
     if expires_minutes is None:
         expires_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     to_encode: dict[str, Any] = {"sub": subject, "exp": int(expire.timestamp())}
+    if extra_claims:
+        to_encode.update(extra_claims)
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 

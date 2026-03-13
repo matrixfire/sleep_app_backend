@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status # Depends means having FastAPI automatically provide this for me
-from fastapi.security import OAuth2PasswordBearer # HANDLES Bearer Token
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
-from app.schemas import UserWithPerms
-from app.services import AuthService
+from app.schemas import AppUserOut, UserWithPerms
+from app.services import AppAuthService, AuthService
 from db.session import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -38,9 +38,35 @@ def get_current_user(
             detail="Inactive user",                   # Inform client that user is inactive or doesn't exist
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user                                     # Return the authenticated and active user object
+    return user
 
 
+def get_app_auth_service(db: Session = Depends(get_db)) -> AppAuthService:
+    return AppAuthService(db=db)
+
+
+def get_current_app_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db),
+) -> AppUserOut:
+    """Load current app user from JWT that has user_type=app. Use on /api/v1/app/* routes."""
+    payload = decode_token(token)
+    if payload is None or getattr(payload, "user_type", None) != "app":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user_id = int(payload.sub)
+    auth_svc = AppAuthService(db)
+    user = auth_svc.get_me(user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
 
 
 

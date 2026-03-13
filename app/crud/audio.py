@@ -13,15 +13,30 @@ def get_audio(db: Session, audio_id: int) -> Optional[AudioResource]:
     return db.execute(stmt).scalar_one_or_none()
 
 
-def list_audios(db: Session, page: int, size: int) -> Tuple[int, list[AudioResource]]:
+def list_audios(
+    db: Session,
+    page: int,
+    size: int,
+    category: Optional[str] = None,
+    scene_tags: Optional[str] = None,
+) -> Tuple[int, list[AudioResource]]:
     if page < 1:
         page = 1
     if size < 1:
         size = 10
-    total = db.execute(select(func.count()).select_from(AudioResource)).scalar_one()
+    base = select(AudioResource)
+    count_base = select(func.count()).select_from(AudioResource)
+    if category:
+        base = base.where(AudioResource.category == category)
+        count_base = count_base.where(AudioResource.category == category)
+    if scene_tags:
+        tags = [t.strip() for t in scene_tags.split(",") if t.strip()]
+        for tag in tags:
+            base = base.where(AudioResource.scene_tags.contains(tag))
+            count_base = count_base.where(AudioResource.scene_tags.contains(tag))
+    total = db.execute(count_base).scalar_one()
     stmt = (
-        select(AudioResource)
-        .order_by(AudioResource.id.desc())
+        base.order_by(AudioResource.id.desc())
         .offset((page - 1) * size)
         .limit(size)
     )

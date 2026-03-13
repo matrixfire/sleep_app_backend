@@ -13,11 +13,18 @@ class Token(BaseModel):
 class TokenPayload(BaseModel):
     sub: str
     exp: int
+    user_type: str | None = None  # "app" for app-user JWT, absent for admin JWT
 
 
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+# App-user login: phone or wechat_openid
+class AppLoginRequest(BaseModel):
+    phone: str | None = None
+    wechat_openid: str | None = None
 
 
 class UserBase(BaseModel):

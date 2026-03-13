@@ -1,6 +1,6 @@
 from app.schemas.audio import AudioBase, AudioCreate, AudioListResponse, AudioOut, AudioUpdate
 from app.schemas.app_user import AppUserCreate, AppUserOut
-from app.schemas.auth import LoginRequest, Message, Token, TokenPayload, UserBase, UserWithPerms
+from app.schemas.auth import AppLoginRequest, LoginRequest, Message, Token, TokenPayload, UserBase, UserWithPerms
 from app.schemas.rbac_admin import (
     MessageOut,
     SysPermissionCreate,
@@ -18,6 +18,18 @@ from app.schemas.user_audio_playback import (
     UserAudioPlaybackListResponse,
     UserAudioPlaybackOut,
 )
+from app.schemas.daily_quote import (
+    DailyQuoteCreate,
+    DailyQuoteListResponse,
+    DailyQuoteOut,
+    DailyQuoteUpdate,
+)
+from app.schemas.user_activity_record import (
+    ActivityEndIn,
+    ActivityStartIn,
+    UserActivityListResponse,
+    UserActivityRecordOut,
+)
 from app.schemas.user_sleep_record import UserSleepRecordCreate, UserSleepRecordListResponse, UserSleepRecordOut
 
 __all__ = [
@@ -28,6 +40,7 @@ __all__ = [
     "AudioUpdate",
     "AppUserCreate",
     "AppUserOut",
+    "AppLoginRequest",
     "LoginRequest",
     "Message",
     "Token",
@@ -50,5 +63,13 @@ __all__ = [
     "SysPermissionOut",
     "SysPermissionListResponse",
     "MessageOut",
+    "DailyQuoteCreate",
+    "DailyQuoteOut",
+    "DailyQuoteUpdate",
+    "DailyQuoteListResponse",
+    "ActivityStartIn",
+    "ActivityEndIn",
+    "UserActivityRecordOut",
+    "UserActivityListResponse",
 ]
 

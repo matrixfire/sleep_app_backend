@@ -19,6 +19,16 @@ def get_app_user(db: Session, user_id: int) -> Optional[AppUser]:
     return db.get(AppUser, user_id)
 
 
+def get_app_user_by_mobile(db: Session, mobile: str) -> Optional[AppUser]:
+    stmt = select(AppUser).where(AppUser.mobile == mobile)
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def get_app_user_by_wechat_openid(db: Session, wechat_openid: str) -> Optional[AppUser]:
+    stmt = select(AppUser).where(AppUser.wechat_openid == wechat_openid)
+    return db.execute(stmt).scalar_one_or_none()
+
+
 def list_app_users(db: Session, page: int, size: int) -> Tuple[int, list[AppUser]]:
     if page < 1:
         page = 1

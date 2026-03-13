@@ -29,10 +29,18 @@ class AudioService:
         self.db = db
         self.current_user = current_user
 
-    def list_audios(self, page: int, size: int) -> AudioListResponse:
+    def list_audios(
+        self,
+        page: int,
+        size: int,
+        category: str | None = None,
+        scene_tags: str | None = None,
+    ) -> AudioListResponse:
         """Return a paginated list of audios after verifying read permission."""
         _ensure_permission(self.current_user, PERM_AUDIO_READ)
-        total, items = crud.list_audios(self.db, page=page, size=size)
+        total, items = crud.list_audios(
+            self.db, page=page, size=size, category=category, scene_tags=scene_tags
+        )
         return AudioListResponse(
             total=total,
             items=[AudioOut.model_validate(obj) for obj in items],
@@ -43,8 +51,11 @@ class AudioService:
         _ensure_permission(self.current_user, PERM_AUDIO_CREATE)
         obj = AudioResource(
             title=data.title,
+            category=data.category or "sound",
+            scene_tags=data.scene_tags,
             cover_url=str(data.cover_url) if data.cover_url is not None else None,
             audio_url=str(data.audio_url),
+            duration=data.duration,
         )
         obj = crud.create_audio(self.db, obj)
         return AudioOut.model_validate(obj)
@@ -57,10 +68,16 @@ class AudioService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio not found")
         if data.title is not None:
             obj.title = data.title
+        if data.category is not None:
+            obj.category = data.category
+        if data.scene_tags is not None:
+            obj.scene_tags = data.scene_tags
         if data.cover_url is not None:
             obj.cover_url = str(data.cover_url)
         if data.audio_url is not None:
             obj.audio_url = str(data.audio_url)
+        if data.duration is not None:
+            obj.duration = data.duration
         obj = crud.update_audio(self.db, obj)
         return AudioOut.model_validate(obj)
 

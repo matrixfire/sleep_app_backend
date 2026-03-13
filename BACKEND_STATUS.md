@@ -26,20 +26,34 @@ erDiagram
     sys_permission ||--o{ sys_role_perm : "perm_id"
     sys_user ||--o{ sys_user_role : "user_id"
     sys_role ||--o{ sys_user_role : "role_id"
+    app_user ||--o{ user_activity_record : "user_id"
     app_user ||--o{ user_audio_playback : "user_id"
     audio_resource ||--o{ user_audio_playback : "audio_id"
     app_user ||--o{ user_sleep_record : "user_id"
     app_user {
         bigint id PK
         string mobile UK
+        string wechat_openid UK
         string nickname
+        datetime register_time
         string device_sn
+        string device_mac
     }
     audio_resource {
         int id PK
         string title
+        string category
+        string scene_tags
         string cover_url
         string audio_url
+        int duration
+    }
+    daily_quote {
+        int id PK
+        datetime show_date UK
+        text content
+        string author
+        string bg_image_url
     }
     sys_permission {
         int id PK
@@ -64,6 +78,15 @@ erDiagram
     sys_user_role {
         int user_id FK PK
         int role_id FK PK
+    }
+    user_activity_record {
+        bigint id PK
+        bigint user_id FK
+        string activity_type
+        datetime start_time
+        datetime end_time
+        int duration_min
+        int status
     }
     user_audio_playback {
         bigint id PK
@@ -90,11 +113,13 @@ erDiagram
 |-------|--------|
 | **app_user** | App-side users (Tide end-users); minimal fields for now. |
 | **audio_resource** | Audio metadata (title, cover_url, audio_url) for Tide content. |
+| **daily_quote** | — |
 | **sys_permission** | Permission codes (e.g. audio:read, rbac:manage). |
 | **sys_role** | Roles (e.g. SUPER_ADMIN, CONTENT_OP). |
 | **sys_role_perm** | Many-to-many: which roles have which permissions. |
 | **sys_user** | Admin/operator accounts (login with username + password). |
 | **sys_user_role** | Many-to-many: which users have which roles. |
+| **user_activity_record** | — |
 | **user_audio_playback** | Playback events (what was played, when, for how long). |
 | **user_sleep_record** | One record per sleep session; raw data stored at URL, not in DB. |
 
@@ -105,16 +130,31 @@ erDiagram
 |--------|------|-------------|
 | id | BigInteger | PK, autoincrement |
 | mobile | String | unique |
-| nickname | String | — |
+| wechat_openid | String | unique |
+| nickname | String | not null |
+| register_time | DateTime | not null |
 | device_sn | String | — |
+| device_mac | String | — |
 
 **audio_resource**  
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | Integer | PK, autoincrement |
 | title | String | not null |
+| category | String | — |
+| scene_tags | String | — |
 | cover_url | String | — |
 | audio_url | String | not null |
+| duration | Integer | — |
+
+**daily_quote**  
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | Integer | PK, autoincrement |
+| show_date | Date | unique, not null |
+| content | Text | not null |
+| author | String | — |
+| bg_image_url | String | not null |
 
 **sys_permission**  
 | Column | Type | Constraints |
@@ -149,6 +189,17 @@ erDiagram
 |--------|------|-------------|
 | user_id | Integer | PK, autoincrement, FK → sys_user.id |
 | role_id | Integer | PK, autoincrement, FK → sys_role.id |
+
+**user_activity_record**  
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | BigInteger | PK, autoincrement |
+| user_id | BigInteger | FK → app_user.id, not null |
+| activity_type | String | not null |
+| start_time | DateTime | not null |
+| end_time | DateTime | — |
+| duration_min | Integer | — |
+| status | SmallInteger | not null |
 
 **user_audio_playback**  
 | Column | Type | Constraints |

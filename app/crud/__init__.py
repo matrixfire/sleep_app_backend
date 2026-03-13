@@ -5,7 +5,13 @@ from app.crud.audio import (
     list_audios,
     update_audio,
 )
-from app.crud.app_user import create_app_user, get_app_user, list_app_users
+from app.crud.app_user import (
+    create_app_user,
+    get_app_user,
+    get_app_user_by_mobile,
+    get_app_user_by_wechat_openid,
+    list_app_users,
+)
 from app.crud.rbac import (
     create_permission,
     create_role,
@@ -23,6 +29,22 @@ from app.crud.rbac import (
     remove_role_permission,
     remove_user_role,
 )
+from app.crud.daily_quote import (
+    create_daily_quote,
+    get_daily_quote,
+    get_daily_quote_by_date,
+    list_daily_quotes,
+    update_daily_quote,
+    delete_daily_quote,
+)
+from app.crud.user_activity_record import (
+    create_activity_record,
+    get_activity_record,
+    get_in_progress_activity,
+    list_activity_records,
+    update_activity_record,
+    count_activities_today_by_type,
+)
 from app.crud.user_audio_playback import create_playback, get_playback, list_playbacks_for_user
 from app.crud.user_sleep_record import create_sleep_record, get_sleep_record, list_sleep_records_for_user
 
@@ -34,6 +56,8 @@ __all__ = [
     "update_audio",
     "create_app_user",
     "get_app_user",
+    "get_app_user_by_mobile",
+    "get_app_user_by_wechat_openid",
     "list_app_users",
     "create_permission",
     "create_role",
@@ -53,6 +77,18 @@ __all__ = [
     "create_sleep_record",
     "get_sleep_record",
     "list_sleep_records_for_user",
+    "create_daily_quote",
+    "get_daily_quote",
+    "get_daily_quote_by_date",
+    "list_daily_quotes",
+    "update_daily_quote",
+    "delete_daily_quote",
+    "create_activity_record",
+    "get_activity_record",
+    "get_in_progress_activity",
+    "list_activity_records",
+    "update_activity_record",
+    "count_activities_today_by_type",
     "create_playback",
     "get_playback",
     "list_playbacks_for_user",

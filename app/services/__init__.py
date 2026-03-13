@@ -1,3 +1,4 @@
+from app.services.app_auth import AppAuthService
 from app.services.audio import (
     AudioService,
     PERM_AUDIO_CREATE,
@@ -10,6 +11,7 @@ from app.services.rbac_admin import PERM_RBAC_MANAGE, RbacAdminService
 from app.services.user_data import UserDataService
 
 __all__ = [
+    "AppAuthService",
     "AudioService",
     "AuthService",
     "UserDataService",

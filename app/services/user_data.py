@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -42,7 +44,14 @@ class UserDataService:
 
     def create_app_user(self, data: AppUserCreate) -> AppUserOut:
         _ensure_permission(self.current_user, PERM_APP_USER_CREATE)
-        obj = AppUser(mobile=data.mobile, nickname=data.nickname, device_sn=data.device_sn)
+        nickname = data.nickname or ("SleepUser_" + uuid.uuid4().hex[:8])
+        obj = AppUser(
+            mobile=data.mobile,
+            nickname=nickname,
+            device_sn=data.device_sn,
+            device_mac=getattr(data, "device_mac", None),
+            wechat_openid=getattr(data, "wechat_openid", None),
+        )
         obj = crud.create_app_user(self.db, obj)
         return AppUserOut.model_validate(obj)
 
