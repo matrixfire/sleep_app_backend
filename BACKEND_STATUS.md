@@ -242,17 +242,6 @@ Token is obtained from `POST /api/v1/auth/login`.
 
 ---
 
-### 2.5 IoT
-
-**Prefix:** `/api/v1/iot`  
-No auth required in current MVP (can be tightened later).
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/iot/ingest` | Ingest device payload. Body: arbitrary JSON. Pushes to Redis list; returns `{"status":"queued"}`. |
-
----
-
 ## 3. Permission codes (seeded for SUPER_ADMIN)
 
 These permission codes exist and control access to the above endpoints:

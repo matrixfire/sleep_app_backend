@@ -8,7 +8,6 @@ FastAPI backend for the Sleep Device IoT + content distribution platform.
 - Admin authentication: JWT login for `sys_user`
 - Fine-grained RBAC permissions checked in Service layer
 - Admin audio resource CRUD: `/api/v1/admin/audios`
-- Redis queue endpoint skeleton for future IoT high-frequency ingestion
 
 ## Quickstart (Windows PowerShell)
 

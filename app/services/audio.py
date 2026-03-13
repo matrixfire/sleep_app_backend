@@ -106,4 +106,7 @@ class AudioService:
 '''
 The current MVP implements coarse permissions. Fine-grained is the next step and fits naturally in the service layer.”
 
+STILL coarse-grained
+
+
 '''
