@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.core.deps import get_app_auth_service, get_current_app_user
+from app.services import AppAuthService
 from app.crud.user_activity_record import (
     STATUS_COMPLETED,
     STATUS_IN_PROGRESS,
