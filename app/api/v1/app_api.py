@@ -28,7 +28,7 @@ from app.schemas import (
 )
 from db.session import get_db
 
-router = APIRouter(prefix="/app", tags=["app"])
+router = APIRouter(prefix="/app", tags=["app"]) # app user APIs
 
 
 # ---- Auth ----

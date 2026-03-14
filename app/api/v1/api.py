@@ -13,11 +13,11 @@ from app.api.v1 import (
 
 api_router = APIRouter()  # Create the main router for version 1 of the API
 
-api_router.include_router(auth.router, prefix="/auth")  # Mount the authentication routes under the '/auth' path
-api_router.include_router(app_api.router)
-api_router.include_router(admin_audio.router)
-api_router.include_router(admin_rbac.router)
-api_router.include_router(admin_daily_quote.router)
-api_router.include_router(admin_stats.router)
-api_router.include_router(admin_user_data.router)
+api_router.include_router(auth.router, prefix="/auth")  # Admin authentication (login, JWT issuance for admin dashboard)
+api_router.include_router(app_api.router)               # Mobile app user-facing APIs (login, home, activities, audio, etc.)
+api_router.include_router(admin_audio.router)           # Audio asset management (CRUD endpoints, admin only)
+api_router.include_router(admin_rbac.router)            # Admin RBAC management (users, roles, permissions, admin-only)
+api_router.include_router(admin_daily_quote.router)     # Daily quote CRUD/management (admin-only)
+api_router.include_router(admin_stats.router)           # Admin dashboard and statistics data endpoints
+api_router.include_router(admin_user_data.router)       # Export and view user journal/data/history (admin-only)
 

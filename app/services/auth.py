@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session  # SQLAlchemy DB session for ORM operations
 
-from app import crud
-from app.core.security import create_access_token, verify_password
-from app.models import SysUser
-from app.schemas import Token, UserWithPerms
+from app import crud  # CRUD operations for database interaction
+from app.core.security import create_access_token, verify_password  # Token creation & password checking utils
+from app.models import SysUser  # SQLAlchemy model for system (admin) user
+from app.schemas import Token, UserWithPerms  # Pydantic schemas for JWT token & user-with-permissions
 
 
 class AuthService:

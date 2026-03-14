@@ -1,26 +1,26 @@
-from __future__ import annotations
+from __future__ import annotations  # allow future Python features, like postponed evaluation of type annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status  # import FastAPI tools for building APIs
+from sqlalchemy.orm import Session  # import for interacting with databases (not used here, but often in APIs)
 
-from app.core.deps import get_auth_service
-from app.schemas import LoginRequest, Token
-from app.services import AuthService
+from app.core.deps import get_auth_service  # function to get the authentication service
+from app.schemas import LoginRequest, Token  # import request and response data models
+from app.services import AuthService  # service that handles authentication logic
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(tags=["auth"])  # create a router for authentication APIs
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token)  # define POST endpoint for login, returns Token schema
 def login(
-    data: LoginRequest,
-    auth_svc: AuthService = Depends(get_auth_service),
-) -> Token:
+    data: LoginRequest,  # request body expected to have username and password
+    auth_svc: AuthService = Depends(get_auth_service),  # get AuthService instance using dependency injection
+) -> Token:  # function returns a Token model
     """Authenticate an admin user and return a JWT access token."""
-    token = auth_svc.authenticate(username=data.username, password=data.password)
-    if token is None:
+    token = auth_svc.authenticate(username=data.username, password=data.password)  # try to authenticate user
+    if token is None:  # if authentication fails
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            status_code=status.HTTP_401_UNAUTHORIZED,  # return 401 HTTP error (unauthorized)
+            detail="Incorrect username or password",  # error message
         )
-    return token
+    return token  # return the JWT token if login succeeds
 
