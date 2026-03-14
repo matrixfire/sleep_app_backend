@@ -7,7 +7,7 @@ from app.core.deps import get_auth_service  # function to get the authentication
 from app.schemas import LoginRequest, Token  # import request and response data models
 from app.services import AuthService  # service that handles authentication logic
 
-router = APIRouter(tags=["auth"])  # create a router for authentication APIs
+router = APIRouter(prefix="/auth", tags=["auth"])  # create a router for authentication APIs
 
 
 @router.post("/login", response_model=Token)  # define POST endpoint for login, returns Token schema
