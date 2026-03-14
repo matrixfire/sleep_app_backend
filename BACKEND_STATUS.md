@@ -22,14 +22,15 @@ The diagram below is generated from the SQLAlchemy models. To refresh it after s
 
 ```mermaid
 erDiagram
-    sys_role ||--o{ sys_role_perm : "role_id"
-    sys_permission ||--o{ sys_role_perm : "perm_id"
-    sys_user ||--o{ sys_user_role : "user_id"
-    sys_role ||--o{ sys_user_role : "role_id"
-    app_user ||--o{ user_activity_record : "user_id"
-    app_user ||--o{ user_audio_playback : "user_id"
-    audio_resource ||--o{ user_audio_playback : "audio_id"
-    app_user ||--o{ user_sleep_record : "user_id"
+    sys_role ||--o{ sys_role_perm : role_id
+    sys_permission ||--o{ sys_role_perm : perm_id
+    sys_user ||--o{ sys_user_role : user_id
+    sys_role ||--o{ sys_user_role : role_id
+    app_user ||--o{ user_activity_record : user_id
+    app_user ||--o{ user_audio_playback : user_id
+    audio_resource ||--o{ user_audio_playback : audio_id
+    app_user ||--o{ user_sleep_record : user_id
+
     app_user {
         bigint id PK
         string mobile UK
@@ -50,7 +51,7 @@ erDiagram
     }
     daily_quote {
         int id PK
-        datetime show_date UK
+        date show_date UK
         text content
         string author
         string bg_image_url
@@ -66,8 +67,8 @@ erDiagram
         string role_code UK
     }
     sys_role_perm {
-        int role_id FK PK
-        int perm_id FK PK
+        int role_id FK, PK
+        int perm_id FK, PK
     }
     sys_user {
         int id PK
@@ -76,8 +77,8 @@ erDiagram
         int status
     }
     sys_user_role {
-        int user_id FK PK
-        int role_id FK PK
+        int user_id FK, PK
+        int role_id FK, PK
     }
     user_activity_record {
         bigint id PK
@@ -313,12 +314,44 @@ These permission codes exist and control access to the above endpoints:
 
 ---
 
-## 4. How to keep this document up to date
+## 4. Strategy & recommendations (basics first, reduce debt)
+
+*Aligned with: basic functionality first; over-engineering is acceptable only when grounded in real business; design without implementation or disconnected from the product is redundant.*
+
+### Where we stand
+
+- **Done and tied to business:** RBAC (admin login, roles, permissions), app-user auth (phone/WeChat login, JWT), app APIs (daily quote, audios with filters, activity start/end/history), admin content (daily quotes, audios CRUD, stats). DB schema and Alembic migration for new tables/columns are in place.
+- **Existing but not yet critical path:** Admin creation of app users and manual sleep/playback records (useful for ops; not required for the main app flow). Legacy tables `user_sleep_record` and `user_audio_playback` coexist with `user_activity_record`; no need to remove them until product clearly prefers one model.
+
+### Suggested order of work
+
+1. **Finish and harden basics**  
+   - Lock down the core flows: app login → home (quote) → audios → activity start/end/history.  
+   - Ensure env, secrets, and DB (including `python -m app.scripts.init_db` and `alembic upgrade head`) are documented and used consistently.  
+   - No new “framework” or big refactors until these flows are stable and used by the product.
+
+2. **Scale / versioning / full-stack expansion only when needed**  
+   - **DB scaling (read replicas, sharding):** Research when traffic or product requirements justify it; don’t build it in advance.  
+   - **DB versioning:** Alembic is already in place; keep using it for every schema change so the DB and code stay in sync and technical debt doesn’t accumulate.  
+   - **Large-scale or “full business expansion”:** Design and implement in small steps, one slice at a time (e.g. one new domain or one new integration), and only when the product actually needs it.
+
+3. **How to “think in advance” without over-building**  
+   - Before adding a feature, write down: *which user action or which business metric this serves.* If you can’t, defer it.  
+   - For each schema or API change: one migration, one deployable step; avoid big-bang “future-proof” designs.  
+   - Keep this doc and the API list up to date so the team and supervisors share one source of truth and can spot scope creep early.
+
+### Summary
+
+Prioritise **basic flows and stability**; do **research and light design** for scaling and expansion, but **implement** only when the business need is clear. That keeps the codebase lean and reduces the chance of errors and technical debt later.
+
+---
+
+## 5. How to keep this document up to date
 
 - **When you add or change tables:** run  
   `.\.venv\Scripts\python.exe scripts\generate_schema_doc.py`  
   to regenerate the Mermaid ER diagram and the “Tables summary” / “Column details” sections in this file (the script overwrites the schema section only).
-- **When you add or change endpoints:** update Section 2 manually (or extend the script to discover routes from the FastAPI app).
+- **When you add or change endpoints:** update the API sections (e.g. Section 2) manually (or extend the script to discover routes from the FastAPI app).
 
 **Viewing the ER diagram:** The diagram is in [Mermaid](https://mermaid.js.org/) format. It renders in GitHub, GitLab, VS Code (Markdown preview), and many other tools. Open this file in any of them to see the diagram; after schema changes, run the script above to refresh it.
 

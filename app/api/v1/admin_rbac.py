@@ -20,6 +20,7 @@ from app.schemas import (
 from app.services.rbac_admin import RbacAdminService
 from db.session import get_db
 
+# Create the FastAPI router for RBAC (Role-Based Access Control) admin functions
 router = APIRouter(prefix="/admin/rbac", tags=["admin-rbac"])
 
 
@@ -27,6 +28,10 @@ def get_rbac_admin_service(
     db: Session = Depends(get_db),
     current_user: UserWithPerms = Depends(get_current_user),
 ) -> RbacAdminService:
+    """
+    Dependency that provides an instance of RbacAdminService
+    using the current DB session and authenticated user.
+    """
     return RbacAdminService(db=db, current_user=current_user)
 
 
@@ -35,6 +40,16 @@ def create_user(
     data: SysUserCreate,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysUserOut:
+    """
+    Create a new user.
+
+    Args:
+        data: User info (username, password, initial roles, etc)
+        svc: Injected RBAC admin service
+
+    Returns:
+        Newly created user data
+    """
     return svc.create_user(data)
 
 
@@ -44,6 +59,17 @@ def list_users(
     size: int = 20,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysUserListResponse:
+    """
+    List users with pagination.
+
+    Args:
+        page: Page number (default 1)
+        size: Items per page (default 20)
+        svc: Injected RBAC admin service
+
+    Returns:
+        List of users with pagination meta info
+    """
     return svc.list_users(page=page, size=size)
 
 
@@ -52,6 +78,16 @@ def create_role(
     data: SysRoleCreate,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysRoleOut:
+    """
+    Create a new role.
+
+    Args:
+        data: Role info (name, code, etc)
+        svc: Injected RBAC admin service
+
+    Returns:
+        Newly created role data
+    """
     return svc.create_role(data)
 
 
@@ -59,6 +95,15 @@ def create_role(
 def list_roles(
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysRoleListResponse:
+    """
+    List all roles.
+
+    Args:
+        svc: Injected RBAC admin service
+
+    Returns:
+        List of all roles
+    """
     return svc.list_roles()
 
 
@@ -67,6 +112,16 @@ def create_permission(
     data: SysPermissionCreate,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysPermissionOut:
+    """
+    Create a new permission.
+
+    Args:
+        data: Permission info (name, code, etc)
+        svc: Injected RBAC admin service
+
+    Returns:
+        Newly created permission data
+    """
     return svc.create_permission(data)
 
 
@@ -74,6 +129,15 @@ def create_permission(
 def list_permissions(
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> SysPermissionListResponse:
+    """
+    List all permissions.
+
+    Args:
+        svc: Injected RBAC admin service
+
+    Returns:
+        List of all permissions
+    """
     return svc.list_permissions()
 
 
@@ -83,6 +147,17 @@ def assign_role(
     role_code: str,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> MessageOut:
+    """
+    Assign a role to a user.
+
+    Args:
+        user_id: The user's ID
+        role_code: The code of the role to assign
+        svc: Injected RBAC admin service
+
+    Returns:
+        Message indicating the result
+    """
     return svc.assign_role_to_user(user_id=user_id, role_code=role_code)
 
 
@@ -92,6 +167,17 @@ def revoke_role(
     role_code: str,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> MessageOut:
+    """
+    Remove a role from a user.
+
+    Args:
+        user_id: The user's ID
+        role_code: The code of the role to remove
+        svc: Injected RBAC admin service
+
+    Returns:
+        Message indicating the result
+    """
     return svc.revoke_role_from_user(user_id=user_id, role_code=role_code)
 
 
@@ -101,6 +187,17 @@ def assign_permission(
     perm_code: str,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> MessageOut:
+    """
+    Assign a permission to a role.
+
+    Args:
+        role_code: The code of the role
+        perm_code: The code of the permission to assign
+        svc: Injected RBAC admin service
+
+    Returns:
+        Message indicating the result
+    """
     return svc.assign_permission_to_role(role_code=role_code, perm_code=perm_code)
 
 
@@ -110,5 +207,15 @@ def revoke_permission(
     perm_code: str,
     svc: RbacAdminService = Depends(get_rbac_admin_service),
 ) -> MessageOut:
-    return svc.revoke_permission_from_role(role_code=role_code, perm_code=perm_code)
+    """
+    Remove a permission from a role.
 
+    Args:
+        role_code: The code of the role
+        perm_code: The code of the permission to remove
+        svc: Injected RBAC admin service
+
+    Returns:
+        Message indicating the result
+    """
+    return svc.revoke_permission_from_role(role_code=role_code, perm_code=perm_code)
