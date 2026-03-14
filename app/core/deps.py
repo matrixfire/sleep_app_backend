@@ -29,6 +29,13 @@ def get_current_user(
             detail="Could not validate credentials",   # Let the client know authentication failed
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Reject app-user tokens: admin endpoints must only accept admin JWTs (no user_type or user_type != "app")
+    if getattr(payload, "user_type", None) == "app":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Admin token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     user_id = int(payload.sub)                      # Extract the user's ID from the token's subject (sub) field
     auth_svc = AuthService(db)                      # Initialize the authentication service with the current DB session
     user = auth_svc.load_current_user(user_id)      # Use the authentication service to get the current user by ID
